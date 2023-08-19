@@ -26,7 +26,6 @@ private:
     void registerFiber(const std::shared_ptr<FiberImpl>& fiber_ptr);
 
     std::queue<std::shared_ptr<FiberImpl>> ready_fibers;
-    std::set<std::shared_ptr<FiberImpl>> ready_fibers_set;
     std::mutex queue_lock;
     std::atomic<bool> stop_requested = false;
 

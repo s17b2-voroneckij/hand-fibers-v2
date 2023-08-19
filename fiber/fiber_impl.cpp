@@ -8,7 +8,6 @@ extern FiberManager fiberManager;
 extern thread_local FiberImpl* current_fiber;
 
 FiberImpl::FiberImpl(const std::function<void()> &func) {
-    cerr << "new fiber being created" << std::endl;
     this->func = func;
 }
 
@@ -33,7 +32,6 @@ void FiberImpl::continue_executing() {
         this_context = callcc([&](auto sink) {
             previous_context = std::move(sink);
             func();
-            cerr << "func() done executing, marking fiber as finished\n";
             finished = true;
             ready = false;
             finish_cv.notify_all();
@@ -53,5 +51,4 @@ void sched_execution() {
 }
 
 FiberImpl::~FiberImpl() {
-    cerr << "fiber being deleted" << std::endl;
 }

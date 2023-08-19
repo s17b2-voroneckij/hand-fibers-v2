@@ -15,7 +15,6 @@ void FiberManager::work() {
             if (!ready_fibers.empty()) {
                 next_fiber = ready_fibers.front();
                 ready_fibers.pop();
-                ready_fibers_set.erase(next_fiber);
                 next_fiber->in_queue = false;
             }
         }
@@ -25,9 +24,6 @@ void FiberManager::work() {
             // execute this thread
             if (next_fiber->ready) {
                 current_fiber = next_fiber;
-                if (next_fiber->is_executing) {
-                    printf("IS EXECUTING!!!!!");
-                }
                 next_fiber->is_executing = true;
                 next_fiber->continue_executing();
                 next_fiber->is_executing = false;
@@ -35,10 +31,6 @@ void FiberManager::work() {
             }
             if (next_fiber->ready && !next_fiber->in_queue.exchange(true)) {
                 std::lock_guard<std::mutex> lg(queue_lock);
-                if (ready_fibers_set.contains(next_fiber)) {
-                    int fd = 0;
-                }
-                ready_fibers_set.insert(next_fiber);
                 ready_fibers.push(next_fiber);
             }
         }
@@ -48,10 +40,6 @@ void FiberManager::work() {
 void FiberManager::registerFiber(const shared_ptr<FiberImpl>& fiber_ptr) {
     if (!fiber_ptr->in_queue.exchange(true)) {
         std::lock_guard<std::mutex> lg(queue_lock);
-        if (ready_fibers_set.contains(fiber_ptr)) {
-            int fd = 0;
-        }
-        ready_fibers_set.insert(fiber_ptr);
         ready_fibers.push(fiber_ptr);
     }
 }

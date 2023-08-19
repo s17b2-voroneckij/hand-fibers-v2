@@ -33,7 +33,6 @@ auto run_with_timing(Callable function, Args ...args) {
 }
 
 void worker(int fd) {
-    printf("work called with fd: %d\n", fd);
     char buf[1024];
     while (true) {
         Waiter::wait(fd, POLLIN);
@@ -62,7 +61,6 @@ void worker(int fd) {
             wrote += m;
         }
     }
-    printf("worker leaving\n");
 }
 
 void signal_handler(int) {
@@ -99,9 +97,7 @@ void server() {
             exit(0);
         }
         while (true) {
-            std::cerr << "accepting\n";
             Waiter::wait(socket_fd, POLLIN);
-            std::cerr << "main fiber waited on Waiter\n";
             int client_fd = accept4(socket_fd, NULL, NULL, SOCK_NONBLOCK);
             Fiber(worker, client_fd);
         }
