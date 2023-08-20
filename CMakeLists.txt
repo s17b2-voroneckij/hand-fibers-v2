@@ -20,6 +20,8 @@ add_executable(server server.cpp
         sync/mutex.cpp
         sync/condvar.cpp
         io/waiter.cpp
+        sync/spinlock.cpp
+        sync/spinlock.h
 )
 
 target_link_libraries(tests PRIVATE Boost::boost Boost::context)

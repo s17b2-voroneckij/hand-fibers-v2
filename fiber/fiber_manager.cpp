@@ -11,7 +11,7 @@ void FiberManager::work() {
     while (!stop_requested) {
         shared_ptr<FiberImpl> next_fiber(nullptr);
         {
-            std::lock_guard<std::mutex> lg(queue_lock);
+            std::lock_guard<Spinlock> lg(queue_lock);
             if (!ready_fibers.empty()) {
                 next_fiber = ready_fibers.front();
                 ready_fibers.pop();
@@ -30,7 +30,7 @@ void FiberManager::work() {
                 current_fiber = nullptr;
             }
             if (next_fiber->ready && !next_fiber->in_queue.exchange(true)) {
-                std::lock_guard<std::mutex> lg(queue_lock);
+                std::lock_guard<Spinlock> lg(queue_lock);
                 ready_fibers.push(next_fiber);
             }
         }
@@ -39,7 +39,7 @@ void FiberManager::work() {
 
 void FiberManager::registerFiber(const shared_ptr<FiberImpl>& fiber_ptr) {
     if (!fiber_ptr->in_queue.exchange(true)) {
-        std::lock_guard<std::mutex> lg(queue_lock);
+        std::lock_guard<Spinlock> lg(queue_lock);
         ready_fibers.push(fiber_ptr);
     }
 }

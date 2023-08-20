@@ -3,6 +3,7 @@
 #include <queue>
 #include <memory>
 #include <mutex>
+#include "spinlock.h"
 
 class FiberImpl;
 
@@ -15,5 +16,5 @@ public:
 
 private:
     std::queue<std::shared_ptr<FiberImpl>> waiters;
-    std::mutex lock;
+    Spinlock lock;
 };

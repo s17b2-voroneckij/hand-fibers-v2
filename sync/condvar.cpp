@@ -8,7 +8,7 @@ extern thread_local std::shared_ptr<FiberImpl> current_fiber;
 
 void CondVar::wait() {
     {
-        std::lock_guard<std::mutex> lg(lock);
+        std::lock_guard<Spinlock> lg(lock);
         waiters.push(current_fiber);
     }
     current_fiber->ready = false;
@@ -18,7 +18,7 @@ void CondVar::wait() {
 void CondVar::notify_one() {
     std::shared_ptr<FiberImpl> fiber_to_wake;
     {
-        std::lock_guard<std::mutex> lg(lock);
+        std::lock_guard<Spinlock> lg(lock);
         if (!waiters.empty()) {
             fiber_to_wake = waiters.front();
             waiters.pop();
@@ -33,7 +33,7 @@ void CondVar::notify_one() {
 void CondVar::notify_all() {
     std::queue<std::shared_ptr<FiberImpl>> old_queue;
     {
-        std::lock_guard<std::mutex> lg(lock);
+        std::lock_guard<Spinlock> lg(lock);
         old_queue = waiters;
         waiters = std::queue<std::shared_ptr<FiberImpl>>();
     }

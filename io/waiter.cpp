@@ -46,7 +46,7 @@ void Waiter::loop() {
             request.push_back(pollfd{.fd = elem.first, .events = elem.second->events, .revents = 1});
         }
         waiter.map_mutex.unlock();
-        int ret = poll(&request[0], request.size(), 10);
+        int ret = poll(&request[0], request.size(), 1);
         if (ret < 0) {
             printf("poll returned with error %s", strerror(errno));
             continue;

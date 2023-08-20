@@ -104,7 +104,7 @@ void server() {
         std::cerr << "main thread leaving\n";
     });
     for (int i = 0; i < 3; i++) {
-        startFiberManagerThread();
+        //startFiberManagerThread();
     }
     startFiberManager();
 }

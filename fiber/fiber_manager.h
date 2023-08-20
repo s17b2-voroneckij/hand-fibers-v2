@@ -5,6 +5,7 @@
 #include <boost/lockfree/queue.hpp>
 #include <set>
 #include "fiber_impl.h"
+#include "../sync/spinlock.h"
 
 void startFiberManager();
 
@@ -26,7 +27,7 @@ private:
     void registerFiber(const std::shared_ptr<FiberImpl>& fiber_ptr);
 
     std::queue<std::shared_ptr<FiberImpl>> ready_fibers;
-    std::mutex queue_lock;
+    Spinlock queue_lock;
     std::atomic<bool> stop_requested = false;
 
     friend void startFiberManager();
