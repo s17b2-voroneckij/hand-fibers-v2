@@ -69,9 +69,9 @@ void signal_handler(int) {
 
 void server() {
     std::cerr << "pid: " << getpid() << std::endl;
-    signal(SIGTERM, signal_handler);
-    signal(SIGINT, signal_handler);
-    signal(SIGABRT, signal_handler);
+    //signal(SIGTERM, signal_handler);
+    //signal(SIGINT, signal_handler);
+    //signal(SIGABRT, signal_handler);
     std::cerr << "main entered" << endl;
     Fiber global_fiber([]() {
         int socket_fd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
