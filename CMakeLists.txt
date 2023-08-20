@@ -24,5 +24,7 @@ add_executable(server server.cpp
         sync/spinlock.h
 )
 
+add_executable(thread_server thread_server.cpp)
+
 target_link_libraries(tests PRIVATE Boost::boost Boost::context)
 target_link_libraries(server PRIVATE Boost::boost Boost::context)

@@ -7,9 +7,7 @@
 #include <netinet/in.h>
 #include <fcntl.h>
 #include <csignal>
-#include "fiber/fiber_impl.h"
-#include "io/waiter.hpp"
-#include "fiber/fiber.hpp"
+#include <thread>
 
 using std::cerr;
 using std::endl;
@@ -26,7 +24,7 @@ unsigned long fibonacci(long n) {
 
 template<typename Callable, typename... Args>
 auto run_with_timing(Callable function, Args ...args) {
-    //auto start_time = clock();
+    auto start_time = clock();
     auto result = function(args...);
     //std::cout << "completed in " << ((double) clock() - start_time) / CLOCKS_PER_SEC << std::endl;
     return result;
@@ -35,7 +33,6 @@ auto run_with_timing(Callable function, Args ...args) {
 void worker(int fd) {
     char buf[1024];
     while (true) {
-        Waiter::wait(fd, POLLIN);
         ssize_t n = read(fd, buf, sizeof(buf));
         if (n == 0) {
             //printf("client finished, leaving\n");
@@ -52,7 +49,6 @@ void worker(int fd) {
         n = strlen(buf);
         int wrote = 0;
         while (wrote < n) {
-            Waiter::wait(fd, POLLOUT);
             ssize_t m = write(fd, buf + wrote, n - wrote);
             if (m < 0) {
                 printf("in worker error: %s\n", strerror(errno));
@@ -73,13 +69,13 @@ void server() {
     //signal(SIGINT, signal_handler);
     //signal(SIGABRT, signal_handler);
     std::cerr << "main entered" << endl;
-    Fiber global_fiber([]() {
+    if (true) {
         int socket_fd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
         if (socket_fd < 0) {
             printf("socket error: %s\n", strerror(errno));
             exit(0);
         }
-        int ret = fcntl(socket_fd, F_SETFL, O_NONBLOCK);
+        int ret = fcntl(socket_fd, F_SETFL, 0);
         if (ret == -1) {
             printf("fcntl error: %s\n", strerror(errno));
             exit(0);
@@ -97,21 +93,11 @@ void server() {
             exit(0);
         }
         while (true) {
-            Waiter::wait(socket_fd, POLLIN);
-            int client_fd = -1;
-            do {
-                int client_fd = accept4(socket_fd, NULL, NULL, SOCK_NONBLOCK);
-                if (client_fd >= 0) {
-                    Fiber(worker, client_fd);
-                }
-            } while (client_fd >= 0);
+            int client_fd = accept4(socket_fd, NULL, NULL, 0);
+            std::thread t(worker, client_fd);
+            t.detach();
         }
-        std::cerr << "main thread leaving\n";
-    });
-    for (int i = 0; i < 3; i++) {
-        //startFiberManagerThread();
     }
-    startFiberManager();
 }
 
 int main() {
