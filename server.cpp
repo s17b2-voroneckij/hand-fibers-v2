@@ -98,7 +98,9 @@ void server() {
         }
         while (true) {
             Waiter::wait(socket_fd, POLLIN);
-            int client_fd = accept4(socket_fd, NULL, NULL, SOCK_NONBLOCK);
+            int client_fd = accept(socket_fd, NULL, NULL);
+            int flags = fcntl(client_fd, F_GETFL, 0);
+            fcntl(client_fd, F_SETFL, flags | O_NONBLOCK);
             Fiber(worker, client_fd);
         }
         std::cerr << "main thread leaving\n";
