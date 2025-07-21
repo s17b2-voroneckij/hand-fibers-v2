@@ -2,8 +2,8 @@ import socket
 from sys import argv
 from threading import Thread
 
-num_clients = 5000
-num_threads = 200
+num_clients = 100
+num_threads = 10
 
 
 def worker():

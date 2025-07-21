@@ -8,6 +8,7 @@
 #include <fcntl.h>
 #include <csignal>
 #include <thread>
+#include <unistd.h>
 
 using std::cerr;
 using std::endl;
@@ -93,7 +94,7 @@ void server() {
             exit(0);
         }
         while (true) {
-            int client_fd = accept4(socket_fd, NULL, NULL, 0);
+            int client_fd = accept(socket_fd, NULL, NULL);
             std::thread t(worker, client_fd);
             t.detach();
         }
